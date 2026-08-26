@@ -1,19 +1,16 @@
-package pagos;
-// Implementación 3: pago en efectivo
+package Pagos;
 import java.math.BigDecimal;
-package pagos;
 
-public class PagoEfectivo implements Pago {
-
+// Implementación 3: pago en efectivo
+public class pagoefectivo implements Pago {
     @Override
     public void procesar(BigDecimal monto) {
         System.out.println("Registrando pago en efectivo de $" + monto);
     }
 
     @Override
-    public String getDescripcion() {
-        return "Efectivo";
-    }
-
+    public String getDescripcion() { return "Efectivo"; }
 }
+// ✅ El servicio de checkout trabaja con la abstracción Pago,
+// // sin importar cuál es la implementación concreta
 

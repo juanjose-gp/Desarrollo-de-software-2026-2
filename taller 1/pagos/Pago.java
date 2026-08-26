@@ -1,10 +1,9 @@
-package pagos;
-// Interfaz común: define el contrato
+package Pagos;
+
 import java.math.BigDecimal;
-
-public interface Pago {
-
+    // Interfaz común: define el contrato
+    public interface Pago {
     void procesar(BigDecimal monto);
-
     String getDescripcion();
 }
+

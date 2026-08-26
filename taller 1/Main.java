@@ -1,80 +1,201 @@
 
-import modelo.CuentaCorriente;
-import modelo.Pedido;
-import modelo.CheckoutService;
-
-import pagos.Pago;
-import pagos.PagoTarjeta;
-import pagos.PagoTransferencia;
-import pagos.PagoEfectivo;
-
+import Modelo.*;
+import Pagos.*;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
-public class Main {
 
-    public static void main(String[] args) {
 
-        Scanner sc = new Scanner(System.in);
+      public class Main {
 
-        Pedido pedido = new Pedido(new BigDecimal("500"));
+        private static final Scanner sc = new Scanner(System.in);
+        private static cuenta cuenta;
+        private static List<cuenta> cuentas = new ArrayList<>();
 
-        CheckoutService checkout = new CheckoutService();
+        public static void main(String[] args) {
+            int opcion;
+            do {
+                mostrarMenu();
+                opcion = leerEntero("Elige una opción: ");
 
-        System.out.println("=== SISTEMA DE PAGOS ===");
-        System.out.println("1. Pago con tarjeta");
-        System.out.println("2. Pago por transferencia");
-        System.out.println("3. Pago en efectivo");
-        System.out.print("Seleccione una opción: ");
+                switch (opcion) {
+                    case 1:
+                        crearCuenta();
+                        break;
+                    case 2:
+                        depositar();
+                        break;
+                    case 3:
+                        debitar();
+                        break;
+                    case 4:
+                        verSaldo();
+                        break;
+                    case 5:
+                        finalizarCompra();
+                        break;
+                    case 0:
+                        System.out.println("FIN");
+                        break;
+                    default:
+                        System.out.println("Opción inválida, intenta de nuevo.");
+                }
+                System.out.println();
+            } while (opcion != 0);
 
-        int opcion = sc.nextInt();
-        sc.nextLine();
-
-        Pago metodoPago = null;
-
-        switch (opcion) {
-
-            case 1:
-                System.out.print("Ingrese número de tarjeta: ");
-                String tarjeta = sc.nextLine();
-
-                metodoPago = new PagoTarjeta(tarjeta);
-                break;
-
-            case 2:
-                System.out.print("Ingrese CBU: ");
-                String cbu = sc.nextLine();
-
-                metodoPago = new PagoTransferencia(cbu);
-                break;
-
-            case 3:
-                metodoPago = new PagoEfectivo();
-                break;
-
-            default:
-                System.out.println("Opción inválida");
-                System.exit(0);
+            sc.close();
         }
 
-        checkout.finalizarCompra(pedido, metodoPago);
+        //Opciones del menú
+        private static void mostrarMenu() {
+            System.out.println("===== MENÚ =====");
+            System.out.println("1. Crear cuenta");
+            System.out.println("2. Depositar");
+            System.out.println("3. Debitar");
+            System.out.println("4. Ver saldo");
+            System.out.println("5. Hacer compra");
+            System.out.println("0. Salir");
+        }
 
-        System.out.println("\n=== PRUEBA CUENTA CORRIENTE ===");
+        private static void crearCuenta() {
+            System.out.println("Tipo de cuenta:");
+            System.out.println("1. Cuenta ahorro");
+            System.out.println("2. Cuenta corriente (con creditos)");
+            int tipo = leerEntero("Elige un tipo: ");
 
-        CuentaCorriente cuenta = new CuentaCorriente(
-                "001",
-                "Juan Jose",
-                new BigDecimal("1000"),
-                new BigDecimal("500")
-        );
+            String numero = leerTexto("Número de cuenta: ");
+            String titular = leerTexto("Titular: ");
+            BigDecimal saldoInicial = leerMonto("Saldo inicial: ");
 
-        System.out.println("Saldo inicial: " + cuenta.getSaldo());
+            try {
+                switch (tipo) {
+                    case 1:
+                        cuenta = new cuenta(numero, titular, saldoInicial);
+                        cuentas.add(cuenta);
+                        System.out.println("Cuenta simple creada. " + cuenta);
+                        break;
+                    case 2:
+                        BigDecimal limite = leerMonto("Límite de credito: ");
+                        cuenta = new cuentacorriente(numero, titular, saldoInicial, limite);
+                        cuentas.add(cuenta);
+                        System.out.println("Cuenta corriente creada. " + cuenta);
+                        break;
+                    default:
+                        System.out.println("Tipo inválido, no se creó la cuenta.");
+                }
+            } catch (IllegalArgumentException e) {
+                System.out.println("No se pudo crear la cuenta: " + e.getMessage());
+            }
+        }
 
-        cuenta.debitar(new BigDecimal("1200"));
+        private static void depositar() {
+            if (!hayCuenta()) {
+                return;
+            }
+            BigDecimal monto = leerMonto("Monto a depositar: ");
+            try {
+                cuenta.depositar(monto);
+                System.out.println("Depósito realizado. " + cuenta);
+            } catch (IllegalArgumentException e) {
+                System.out.println("No se pudo depositar: " + e.getMessage());
+            }
+        }
 
-        System.out.println("Saldo después del débito: "
-                + cuenta.getSaldo());
+        private static void debitar() {
+            if (!hayCuenta()) {
+                return;
+            }
+            BigDecimal monto = leerMonto("Monto a debitar: ");
+            try {
+                cuenta.debitar(monto);
+                System.out.println("Débito realizado. " + cuenta);
+            } catch (RuntimeException e) {
+                System.out.println("No se pudo debitar: " + e.getMessage());
+            }
+        }
 
-        sc.close();
+        private static void verSaldo() {
+
+            if (cuentas.isEmpty()) {
+                System.out.println("No hay cuentas registradas.");
+                return;
+            }
+
+            System.out.println("=== CUENTAS REGISTRADAS ===");
+
+            for (cuenta cuenta : cuentas) {
+                System.out.println(cuenta);
+            }
+        }
+    
+
+    private static void finalizarCompra() {
+        BigDecimal total = leerMonto("Total del pedido: ");
+        Pedido pedido = new Pedido(total);
+
+        System.out.println("Método de pago:");
+        System.out.println("1. Efectivo");
+        System.out.println("2. Tarjeta");
+        System.out.println("3. Transferencia");
+        int metodo = leerEntero("Elige un método: ");
+
+        Pago pago;
+        switch (metodo) {
+            case 1:
+                pago = new pagoefectivo();
+                break;
+            case 2:
+                String numeroTarjeta = leerTexto("Número de tarjeta: ");
+                pago = new pagotarjeta(numeroTarjeta);
+                break;
+            case 3:
+                String cbu = leerTexto("CBU: ");
+                pago = new pagotransferencia(cbu);
+                break;
+            default:
+                System.out.println("Método inválido, se cancela la compra.");
+                return;
+        }
+
+        // CheckoutService no sabe (ni le importa) qué implementación de Pago recibió.
+        new CheckoutService().finalizarCompra(pedido, pago);
+    }
+
+    //Utilidades de entrada
+    private static boolean hayCuenta() {
+        if (cuenta == null) {
+            System.out.println("Primero crea una cuenta (opción 1).");
+            return false;
+        }
+        return true;
+    }
+
+    private static int leerEntero(String mensaje) {
+        System.out.print(mensaje);
+        while (true) {
+            try {
+                return Integer.parseInt(sc.nextLine().trim());
+            } catch (NumberFormatException e) {
+                System.out.print("Ingresa un número válido: ");
+            }
+        }
+    }
+
+    private static String leerTexto(String mensaje) {
+        System.out.print(mensaje);
+        return sc.nextLine().trim();
+    }
+
+    private static BigDecimal leerMonto(String mensaje) {
+        System.out.print(mensaje);
+        while (true) {
+            try {
+                return new BigDecimal(sc.nextLine().trim());
+            } catch (NumberFormatException e) {
+                System.out.print("Ingresa un monto válido (ej: 1000.50): ");
+            }
+        }
     }
 }

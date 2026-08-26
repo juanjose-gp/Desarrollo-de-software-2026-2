@@ -1,4 +1,4 @@
-package modelo;
+package Modelo;
 import java.math.BigDecimal;
 
 public class Pedido {
@@ -13,3 +13,4 @@ public class Pedido {
         return total;
     }
 }
+

@@ -1,19 +1,30 @@
-package modelo;
+package Modelo;
 
 import java.math.BigDecimal;
 
-public class Cuenta {
+public class cuenta {
 
-    protected final String numero;
-    protected final String titular;
+    // Atributos de identidad: no cambian una vez creada la cuenta.
+    private final String numero;
+    private final String titular;
+
+    // Estado mutable. Protected (no private) para que CuentaCorriente
+    // pueda leerlo/modificarlo directamente en su propio debitar().
     protected BigDecimal saldo;
 
-    public Cuenta(String numero, String titular, BigDecimal saldoInicial) {
-
-        if (saldoInicial.compareTo(BigDecimal.ZERO) < 0) {
+    public cuenta(String numero, String titular, BigDecimal saldoInicial) {
+        if (numero == null || !numero.matches("\\d{6,}")) {
             throw new IllegalArgumentException(
-                    "El saldo inicial no puede ser negativo"
+                    "El número de cuenta debe contener solo números y tener mínimo 6 dígitos"
             );
+        }
+        if (titular == null || !titular.matches("[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+")) {
+            throw new IllegalArgumentException(
+                    "El titular solo puede contener letras"
+            );
+        }
+        if (saldoInicial == null || saldoInicial.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("El saldo inicial no puede ser negativo");
         }
 
         this.numero = numero;
@@ -21,33 +32,26 @@ public class Cuenta {
         this.saldo = saldoInicial;
     }
 
-    // Operación de negocio: depositar
+    //Aumenta el saldo. El monto debe ser positivo.
     public void depositar(BigDecimal monto) {
+        validarMontoPositivo(monto);
         this.saldo = this.saldo.add(monto);
     }
 
-    // Operación de negocio: debitar
+    //Disminuye el saldo, validando que haya fondos suficientes.
     public void debitar(BigDecimal monto) {
-
-        if (monto.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException(
-                    "El monto debe ser positivo"
-            );
-        }
-
+        validarMontoPositivo(monto);
         if (monto.compareTo(this.saldo) > 0) {
             throw new SaldoInsuficienteException(
-                    "Saldo: " + saldo
-                    + ", solicitado: " + monto
-            );
+                    "Saldo: " + this.saldo + ", solicitado: " + monto);
         }
-
         this.saldo = this.saldo.subtract(monto);
     }
 
-    // Consultar saldo
-    public BigDecimal getSaldo() {
-        return saldo;
+    private void validarMontoPositivo(BigDecimal monto) {
+        if (monto == null || monto.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("El monto debe ser positivo");
+        }
     }
 
     public String getNumero() {
@@ -56,5 +60,22 @@ public class Cuenta {
 
     public String getTitular() {
         return titular;
+    }
+
+    public BigDecimal getSaldo() {
+        return saldo;
+    }
+
+    @Override
+    public String toString() {
+        return "Cuenta{numero='" + numero + "', titular='" + titular + "', saldo=" + saldo + '}';
+    }
+}
+
+//Excepción de negocio: se intenta debitar más de lo disponible.
+class SaldoInsuficienteException extends RuntimeException {
+
+    public SaldoInsuficienteException(String mensaje) {
+        super(mensaje);
     }
 }

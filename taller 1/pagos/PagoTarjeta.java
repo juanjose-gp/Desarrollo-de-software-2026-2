@@ -1,18 +1,17 @@
- package pagos;
- // Implementación 1: pago con tarjeta de crédito
- import java.math.BigDecimal;
- package pagos;
- public class PagoTarjeta implements Pago {
- private final String numeroTarjeta;
+package Pagos;
+import java.math.BigDecimal;
+//Implementación 1: pago con tarjeta de crédito
+public class pagotarjeta implements Pago {
+    private final String numeroTarjeta;
 
-    public PagoTarjeta(String numeroTarjeta) { this.numeroTarjeta = numeroTarjeta; }
+    public pagotarjeta(String numeroTarjeta) { this.numeroTarjeta = numeroTarjeta; }
 
-    @Override 
+    @Override
     public void procesar(BigDecimal monto) {
         System.out.println("Cargando $" + monto + " a la tarjeta " + numeroTarjeta);
         // lógica de autorización con la red de tarjetas    
         }
 
-    @Override 
+    @Override
     public String getDescripcion() { return "Tarjeta " + numeroTarjeta; }
 }
