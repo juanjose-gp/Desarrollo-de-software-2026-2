@@ -1,0 +1,200 @@
+################################## HISTORIAS DE USUARIO JIRA #############################
+
+
+req procesar pagos
+https://juanjogiraldop254.atlassian.net/browse/SCRUM-5?atlOrigin=eyJpIjoiNGYzODJjNTZmNGEyNDY2ZmFkZWZiMTBkY2Y1MGUwYzgiLCJwIjoiaiJ9
+
+req obtener saldo
+https://juanjogiraldop254.atlassian.net/browse/SCRUM-6?atlOrigin=eyJpIjoiNDAzYzJjZWRiNjkyNDIzN2E2ZGViOTg0ZWMxYTFkZDIiLCJwIjoiaiJ9
+
+req obtener pagos
+https://juanjogiraldop254.atlassian.net/browse/SCRUM-7?atlOrigin=eyJpIjoiMmIwZWIwMDE4ZTQxNDBjMGFiODg2Y2Y0YTViODlkZmQiLCJwIjoiaiJ9
+
+req obtener facturas
+https://juanjogiraldop254.atlassian.net/browse/SCRUM-8?atlOrigin=eyJpIjoiMTczOWZjMmJkYmVlNGM2ZGI2MTQ1YmMxMmVkODAxYjEiLCJwIjoiaiJ9
+
+
+
+############################################## CASOS DE USO #############################
+https://drive.google.com/file/d/198m9IJFeq6DE8wfNl8bL5N-qnceX3thw/view?usp=sharing
+
+############################################## LINK DIAGRAMA DE CLASES ###################
+
+
+##################### procesar pago
+permite al usuario saber el valor pendiente del servicio publico a pagar
+
+##actores 1ro
+cliente
+
+##actores 2do
+sistema de pagos
+empresa prestadora de servicios públicos
+banco
+
+## precondiciones
+El cliente debe estar registrado en el sistema.
+Debe existir una factura pendiente de pago.
+La cuenta seleccionada debe estar activa.
+
+## flujo principal
+el usuario entra a la plataforma de la empresa que brinda el servicio publico
+el usuario hace login en la plataforma de la empresa
+el usuario busca las facturas pendientes de pago
+el sistema recibe los datos del usuario para hacer efectivo el pago
+el sistema valida el pago por el monto de la factura
+el sistema aprueba el pago
+el usuario esta al día con el pago de las facturas
+
+## Flujos Alternativos
+* FA1: Pago con Cuenta de Ahorros
+cliente selecciona una Cuenta de Ahorros.
+El sistema valida la cuenta.
+Continúa en el paso 4 del flujo principal.
+
+* FA2: Pago con tarjeta de crédito
+cliente selecciona una Cuenta Corriente.
+El sistema valida la cuenta.
+Continúa en el paso 4 del flujo principal.
+
+##post condiciones
+El pago queda registrado.
+La factura cambia a estado "Pagada".
+El saldo de la cuenta es actualizado.
+
+##Excepciones
+Saldo insuficiente
+sistema detecta que el saldo es menor al valor de la factura.
+Se rechaza la transacción.
+Se informa al cliente.
+Factura inexistente
+El sistema no encuentra la factura seleccionada.
+Se cancela el proceso.
+
+
+########################Obtener Facturas por Cliente
+
+##Actor 1ro
+Cliente
+
+##Actor 2ro
+Sistema de pagos
+
+##Precondiciones
+El cliente debe estar registrado.
+Deben existir facturas asociadas al cliente.
+
+##Postcondiciones
+Se muestra el listado de facturas del cliente.
+
+##Flujo Principal
+El usuario inicia sesión.
+el usuario Selecciona la opción "Mis Facturas".
+El sistema identifica al cliente.
+El sistema consulta las facturas asociadas.
+El sistema muestra el listado de facturas.
+El cliente visualiza los detalles.
+
+##Flujos Alternativos
+Consultar solo facturas pendientes
+El cliente selecciona el filtro "Pendientes".
+El sistema muestra únicamente las facturas pendientes.
+Consultar solo facturas pagadas
+El cliente selecciona el filtro "Pagadas".
+El sistema muestra únicamente las facturas pagadas.
+
+##Excepciones
+No existen facturas
+El sistema no encuentra facturas asociadas al cliente.
+Se informa al usuario.
+Error de acceso a datos
+El sistema no puede recuperar la información.
+Se muestra un mensaje de error.
+
+
+##################Obtener Pagos por Cliente
+
+##Actores
+Actor 1ro
+Cliente
+
+Actor 2ro
+Sistema de pagos
+
+##Precondiciones
+ cliente debe estar registrado.
+Debe haber acceso a la información de pagos.
+
+##Postcondiciones
+Se muestra el historial de pagos asociado al cliente.
+
+##Flujo Principal
+El cliente inicia sesión.
+Selecciona la opción "Mis Pagos".
+El sistema identifica al cliente.
+El sistema consulta los pagos registrados.
+El sistema muestra el listado de pagos.
+El cliente revisa la información.
+
+##Flujos Alternativos
+FA1: Filtrar por fecha
+El cliente selecciona un rango de fechas.
+El sistema filtra los pagos.
+Muestra los resultados.
+
+FA2:Filtrar por servicio
+El cliente selecciona un servicio público.
+El sistema filtra los pagos relacionados.
+Muestra los resultados.
+
+##Excepciones
+No existen pagos
+El sistema no encuentra registros.
+Muestra un mensaje informativo.
+Error de consulta
+El sistema no puede acceder a la información.
+Notifica el error al usuario.
+
+
+############################ OBTENER SALDO DE LA CUENTA   
+Le permite al usuario saber el saldo que tiene disponible en su cuenta
+
+Actor 1ro
+Cliente
+
+Actores 2ro
+Sistema de cuentas
+Banco al que se encuentra afiliado el usuario
+
+##Precondiciones
+El cliente debe estar afiliado o debe tener una cuenta vinculada al banco
+
+##Flujo principal
+El usuario ingresa a la plataforma o aplicación del banco al que se encuentra afiliado
+El usuario inicia sesión con su usuario y contraseña de acceso
+El usuario selecciona la opción de consultar el saldo de su cuenta
+El sistema de cuentas recibe la solicitud de consulta del usuario
+El sistema verifica la identidad y los datos de la cuenta asociada al usuario
+El sistema consulta el saldo actual disponible en la cuenta
+El sistema muestra al usuario el saldo disponible en su cuenta
+El usuario visualiza la información del saldo consultado
+El usuario selecciona opción en la plataforma del banco para ser redirigido al pago de la factura
+
+##Flujo Alternativos
+
+FA1: El usuario no cuenta con registro en la plataforma del banco
+El usuario ingresa usuario y contraseña incorrectas y no logra iniciar sesión
+El sistema no logra establecer conexión con el banco para consultar el saldo
+La cuenta del usuario se encuentra inactiva o bloqueada
+
+FA2:El usuario solicita el saldo de una cuenta en moneda extranjera
+El sistema de cuentas identifica el tipo de cuenta y su moneda asociada
+El sistema consulta la tasa de cambio vigente con el banco afiliado
+El sistema convierte y muestra al usuario el saldo disponible en la moneda correspondiente
+
+##Excepciones
+El servicio del banco no está disponible en el momento de la consulta, por lo que el sistema no puede recuperar el saldo
+El usuario supera el número máximo de intentos de inicio de sesión permitidos, y el sistema bloquea temporalmente el acceso a la cuenta
+
+##Postcondiciones
+El usuario queda informado del saldo disponible en su cuenta al momento de la consulta
